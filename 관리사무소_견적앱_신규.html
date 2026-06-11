@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리사무소 납품 견적서</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:13px;background:#f0f4f8;color:#222}
+
+/* ── 레이아웃 ── */
+.wrap{display:flex;gap:10px;padding:10px;max-width:1400px;margin:0 auto}
+.left-panel{width:220px;flex-shrink:0}
+.right-panel{flex:1;min-width:0}
+
+/* ── 카드 ── */
+.card{background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);margin-bottom:10px;overflow:hidden}
+.card-hd{background:linear-gradient(135deg,#1F4E79,#2e6da4);color:#fff;padding:10px 14px;font-weight:700;font-size:13px}
+.card-bd{padding:12px}
+
+/* ── 좌측 입력 폼 ── */
+.form-row{display:flex;align-items:center;margin-bottom:7px;gap:6px}
+.form-row label{width:80px;font-size:12px;color:#555;flex-shrink:0}
+.form-row input[type=text],.form-row input[type=number]{
+  flex:1;border:1px solid #ddd;border-radius:5px;padding:5px 7px;font-size:13px;width:100%}
+.form-row input:focus{outline:none;border-color:#2e6da4}
+.section-title{font-size:11px;font-weight:700;color:#1F4E79;margin:8px 0 5px;padding-bottom:3px;border-bottom:1px solid #e0e8f0}
+.total-badge{background:#e8f1f9;border-radius:5px;padding:4px 8px;font-size:11px;color:#1F4E79;font-weight:700;text-align:center;margin-top:6px}
+.btn-calc{width:100%;padding:10px;background:linear-gradient(135deg,#1F4E79,#2e6da4);color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.5px}
+.btn-calc:hover{background:linear-gradient(135deg,#163d5e,#24588a)}
+.btn-sm{padding:5px 11px;border-radius:5px;border:none;font-size:12px;cursor:pointer;font-weight:600}
+.btn-print{background:#1F4E79;color:#fff}
+.btn-reset{background:#e0e8f0;color:#333}
+
+/* ── 탭 ── */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tab{padding:7px 12px;border-radius:6px;background:#e0e8f0;cursor:pointer;font-size:12px;font-weight:600;color:#555;white-space:nowrap}
+.tab.active{background:linear-gradient(135deg,#1F4E79,#2e6da4);color:#fff}
+.tab-badge{font-size:10px;background:rgba(255,255,255,.25);border-radius:10px;padding:1px 5px;margin-left:4px}
+.tab:not(.active) .tab-badge{background:rgba(0,0,0,.08);color:#888}
+
+/* ── 마진율 컨트롤 ── */
+.margin-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8fafc;border-radius:7px;margin-bottom:8px;flex-wrap:wrap}
+.margin-bar label{font-size:12px;color:#555;white-space:nowrap}
+.margin-bar input{width:70px;border:1px solid #ddd;border-radius:5px;padding:4px 7px;font-size:13px;font-weight:700;text-align:center}
+.margin-bar input:focus{outline:none;border-color:#2e6da4}
+.margin-bar .hint{font-size:11px;color:#888}
+.margin-bar .btn-apply{padding:4px 10px;background:#2e6da4;color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer;font-weight:600}
+.margin-bar .btn-apply:hover{background:#1F4E79}
+
+/* ── 테이블 ── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#1F4E79;color:#fff;padding:7px 5px;text-align:center;white-space:nowrap;font-weight:600}
+td{padding:5px 5px;border-bottom:1px solid #eef2f7;vertical-align:middle}
+tr:hover td{background:#f5f8fc}
+.tc{text-align:center}
+.tl{text-align:left}
+.tr{text-align:right}
+.supply-col{color:#888;font-size:11px}
+
+/* 수량/단가 입력 */
+.ni{width:62px;border:1px solid #ddd;border-radius:4px;padding:3px 5px;text-align:center;font-size:12px}
+.pi{width:95px;border:1px solid #ddd;border-radius:4px;padding:3px 5px;text-align:right;font-size:12px;background:#fff9e6}
+.si{width:95px;border:1px solid #e8eef5;border-radius:4px;padding:3px 5px;text-align:right;font-size:12px;background:#e8f4ea;color:#1a6b2a;font-weight:600;cursor:default}
+.ni:focus,.pi:focus{outline:none;border-color:#2e6da4}
+
+/* ── 합계 ── */
+.total-row{margin-top:8px;display:flex;justify-content:flex-end}
+.total-box table{font-size:12px;min-width:240px}
+.total-box td{padding:4px 10px}
+.tl2{text-align:left;color:#555}
+.total-box tr.grand td{font-weight:700;color:#1F4E79;font-size:13px;border-top:2px solid #1F4E79}
+.grand-bar{margin-top:12px;padding:11px 16px;background:linear-gradient(135deg,#1F4E79,#2e6da4);color:#fff;border-radius:8px;font-size:14px;font-weight:700;text-align:right}
+.note{font-size:11px;color:#888;margin-top:8px;padding:0 4px}
+
+/* ── 툴바 ── */
+.toolbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.apt-title{font-size:17px;font-weight:800;color:#1F4E79}
+.summary-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.sb{background:#e8f1f9;border-radius:5px;padding:3px 9px;font-size:11px;color:#1F4E79;font-weight:600}
+
+/* ── 빈 상태 ── */
+.empty{text-align:center;padding:50px 20px;color:#aaa}
+.empty div{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px;line-height:1.6}
+
+/* ── 인쇄 ── */
+@media print {
+  body{background:#fff}
+  .left-panel,.btn-calc,.btn-reset,.btn-print,.margin-bar,.note{display:none!important}
+  .wrap{padding:0}
+  .right-panel{width:100%}
+  .card{box-shadow:none;border:none}
+  .card-hd{display:none}
+  .supply-col,.pi,.supply-th{display:none!important}
+  th.supply-th,td.supply-td{display:none!important}
+  table{font-size:10px}
+  td,th{padding:4px 4px}
+  .si{border:none;background:none;font-size:10px}
+  .tabs .tab:not(.active){display:none}
+  .tab-pane{display:block!important}
+  .grand-bar{background:#1F4E79;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:15mm 10mm}
+}
+
+/* ── 반응형 ── */
+@media(max-width:700px){
+  .wrap{flex-direction:column;padding:8px}
+  .left-panel{width:100%}
+  table{font-size:11px}
+  .ni{width:50px}
+  .pi,.si{width:80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── 좌측 입력 패널 ── -->
+<div class="left-panel">
+  <div class="card">
+    <div class="card-hd">📋 기본 정보</div>
+    <div class="card-bd">
+      <div class="form-row">
+        <label>아파트명</label>
+        <input type="text" id="aptName" placeholder="예) 힐스테이트" value="">
+      </div>
+      <div class="form-row">
+        <label>세대수</label>
+        <input type="number" id="세대수" value="600" min="0">
+      </div>
+
+      <div class="section-title">👔 관리소 직원</div>
+      <div class="form-row"><label>소장</label><input type="number" id="소장" value="1" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>경리대리</label><input type="number" id="경리대리" value="1" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>관리과장</label><input type="number" id="관리과장" value="1" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>서무주임</label><input type="number" id="서무주임" value="1" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>기전주임</label><input type="number" id="기전주임" value="1" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>기전주야</label><input type="number" id="기전주야" value="4" min="0" oninput="updateTotal()"></div>
+
+      <div class="section-title">🧹 미화원</div>
+      <div class="form-row"><label>미화원</label><input type="number" id="미화원" value="8" min="0" oninput="updateTotal()"></div>
+      <div class="form-row"><label>외곽미화원</label><input type="number" id="외곽미화" value="2" min="0" oninput="updateTotal()"></div>
+
+      <div class="section-title">🛡 경비</div>
+      <div class="form-row"><label>경비</label><input type="number" id="경비" value="5" min="0" oninput="updateTotal()"></div>
+
+      <div class="total-badge" id="totalBadge">총원: — 명</div>
+
+      <button class="btn-calc" onclick="calculate()">📊 수량 자동 계산</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 우측 견적 ── -->
+<div class="right-panel">
+  <div class="card">
+    <div class="card-hd">📄 견적서</div>
+    <div class="card-bd">
+      <div id="quoteArea">
+        <div class="empty"><div>📊</div><p>왼쪽에서 인원을 입력하고<br><b>수량 자동 계산</b>을 눌러주세요</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── 숫자 포맷 ──
+const fmt = n => n > 0 ? Number(n).toLocaleString('ko-KR')+'원' : '-';
+
+// ── 10원 단위 올림 ──
+const ceil10 = n => Math.ceil(n / 10) * 10;
+
+// ── 마진 적용 판매가 ──
+function sellPrice(supply, marginPct) {
+  if (!supply || supply <= 0) return 0;
+  return ceil10(supply * (1 + marginPct / 100));
+}
+
+// ── 세대수 비례 헬퍼 ──
+const sd = (base, s, min) => Math.max(min !== undefined ? min : Math.ceil(base * 0.5), Math.round(base * Math.max(0.3, s.세대수 / 600)));
+
+// ── 총원 자동계산 ──
+function updateTotal() {
+  const ids = ['소장','경리대리','관리과장','서무주임','기전주임','기전주야','미화원','외곽미화','경비'];
+  const total = ids.reduce((s, id) => s + (parseInt(document.getElementById(id)?.value) || 0), 0);
+  document.getElementById('totalBadge').textContent = `총원: ${total}명`;
+}
+updateTotal();
+
+// ── 마진율 저장 (탭별) ──
+const margins = {가구: 15, 집기: 15, 용품: 20, 공기구: 20, 미화: 20};
+
+// ── 카테고리 데이터 ──
+const DATA = {
+
+  가구: [
+    {no:1,  name:"망펄 탑책상",          spec:"1800*800*720",       price:450000, note:"소장용",      scale: s => s.소장},
+    {no:2,  name:"망펄 탑책상",          spec:"1400*800*720",       price:320000, note:"일반직원",    scale: s => s.사무직-s.소장 + Math.ceil(s.기전주야/2)},
+    {no:3,  name:"펜목재 이동서랍 망펄", spec:"420*520*585",        price:85000,  note:"직원서랍",    scale: s => s.사무직 + s.기전주임 + Math.ceil(s.기전주야/2)},
+    {no:4,  name:"원형테이블",           spec:"900*720/원통형",      price:180000, note:"소장실",      scale: s => s.소장>0?1:0},
+    {no:5,  name:"회의용사각테이블",     spec:"1800*900*720",       price:350000, note:"회의실",      scale: s => s.세대수>600?2:1},
+    {no:6,  name:"책장/5단/고급/올문",   spec:"800*400*1880",       price:220000, note:"대형책장",    scale: s => s.소장+s.경리대리+s.관리과장+2},
+    {no:7,  name:"책장/2단/고급/올문",   spec:"800*400*825",        price:120000, note:"소형책장",    scale: s => s.기전주임+2},
+    {no:8,  name:"2인라카장",            spec:"600*550*1900",       price:180000, note:"격일라카",    scale: s => Math.ceil(s.기전주야/2)},
+    {no:9,  name:"4인라카장",            spec:"600*550*1900",       price:320000, note:"격일라카",    scale: s => s.기전주야>4 ? Math.floor(s.기전주야/4) : 0},
+    {no:10, name:"망펄 2단 탑협탁",      spec:"400*800*720",        price:95000,  note:"직원협탁",    scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:11, name:"킹덤중역의자",         spec:"중역의자",             price:350000, note:"소장의자",    scale: s => s.소장},
+    {no:12, name:"사무용의자",           spec:"S1매쉬",              price:120000, note:"일반의자",    scale: s => s.사무직-s.소장+s.기전주임},
+    {no:13, name:"회의용의자",           spec:"랙스",                price:65000,  note:"회의의자",    scale: s => Math.min(20, Math.max(8, Math.ceil(s.세대수/50)))},
+    {no:14, name:"민원인대기의자",       spec:"3인용",               price:150000, note:"민원대기",    scale: s => s.세대수>600?2:1},
+    {no:15, name:"카운터상판",           spec:"1850*350",            price:250000, note:"민원카운터",  scale: s => s.세대수>600?2:1},
+    {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:180000, note:"대형파티션",  scale: s => 1},
+    {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:150000, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임},
+    {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:120000, note:"소형파티션",  scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
+    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직-s.소장+s.기전주임},
+    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
+    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
+    {no:22, name:"설치 배송비",         spec:"-",                   price:0,      note:"별도산정",    scale: s => 1},
+  ],
+
+  집기: [
+    {no:1,  name:"데스크탑(조립) 업",          spec:"i3-13세대/16GB/500GB SSD",    price:720000, scale: s => s.사무직},
+    {no:2,  name:"데스크탑(조립)",             spec:"i3-13세대/8GB/256GB SSD",     price:560000, scale: s => s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:3,  name:'24" 평면모니터',             spec:"중소기업",                      price:90000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:4,  name:"OS",                        spec:"WIN11 정품",                   price:150000, scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:5,  name:"키보드 마우스 세트",          spec:"장패드포함",                    price:30000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:6,  name:"스피커",                     spec:"-",                            price:10000,  scale: s => s.사무직+Math.ceil(s.기전주임/2)},
+    {no:7,  name:"전자레인지",                  spec:"삼성",                         price:130000, scale: s => 1+(s.경비>0?1:0)+(s.미화원+s.외곽미화>0?1:0)},
+    {no:8,  name:"냉장고(관리사무소)",          spec:"410L / 삼성",                  price:690000, scale: s => 1},
+    {no:9,  name:"전기포트",                   spec:"-",                            price:38000,  scale: s => 1},
+    {no:10, name:"멀티탭",                     spec:"6구5M",                        price:15000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:11, name:"냉장고(미화·경비)",          spec:"121L / LG",                    price:310000, scale: s => (s.경비>0||s.미화원+s.외곽미화>0)?1:0},
+    {no:12, name:"전기압력밥솥",               spec:"쿠쿠 10인",                     price:228000, scale: s => (s.경비>0?1:0)+(s.미화원+s.외곽미화>0?1:0)},
+    {no:13, name:"복합기(엡손무한잉크)",        spec:"팩스/복사/스캔",                price:370000, scale: s => 1},
+    {no:14, name:"랜선 및 전기작업",           spec:"랜선포설/콘센트/허브포함",       price:80000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:15, name:"데스크탑(조립) 경비실",      spec:"셀러론/8GB/256GB SSD",         price:450000, scale: s => s.경비>0?1:0},
+  ],
+
+  용품: [
+    {no:1, name:"코팅기", brand:"현대오피스", code:"C183-8118", spec:"PL-330L PLUS ECO(A3)", price:117640, scale:s=>1},
+    {no:2, name:"코팅지", brand:"현대오피스", code:"C183-2336", spec:"A4-100mic(100장)", price:7344, scale:s=>3},
+    {no:3, name:"코팅지", brand:"현대오피스", code:"C183-2345", spec:"A3-100mic(100장)", price:14212, scale:s=>3},
+    {no:4, name:"세단기", brand:"현대오피스", code:"C183-8002", spec:"PK-120AF(25ℓ)", price:248880, scale:s=>1},
+    {no:5, name:"화이트보드", brand:"두문", code:"C183-7100", spec:"무지 900x600(자석)", price:23030, scale:s=>1},
+    {no:6, name:"화이트보드", brand:"두문", code:"C183-7119", spec:"무지 1200x900(자석)", price:56980, scale:s=>1},
+    {no:7, name:"화이트보드", brand:"두문", code:"C183-6989", spec:"월중계획표 900x600(자석)", price:27160, scale:s=>1},
+    {no:8, name:"화이트보드", brand:"두문", code:"C183-6998", spec:"월중계획표 1200x900(자석)", price:66150, scale:s=>1},
+    {no:9, name:"컬러원형자석홀더", brand:"마그피아", code:"C191-0786", spec:"MFMH-27-10(27Φx9.0T,1통=10EA)", price:2624, scale:s=>Math.max(4, s.사무직)},
+    {no:10, name:"펀치(3공이동)", brand:"화신공업", code:"C180-4449", spec:"3공이동펀치", price:14160, scale:s=>1},
+    {no:11, name:"스테플러", brand:"피스", code:"C180-0090", spec:"35호", price:6903, scale:s=>Math.max(4, s.사무직)},
+    {no:12, name:"스테플러핀", brand:"피스", code:"C180-0124", spec:"33호침(1통=10갑)", price:17582, scale:s=>1},
+    {no:13, name:"계산기", brand:"카시오", code:"C417-0547", spec:"MS-120FM", price:16724, scale:s=>Math.max(4, s.사무직)},
+    {no:14, name:"클리어파일 20P(녹색)", brand:"현풍", code:"C184-1486", spec:"20P컬러파일 녹색 4322-3", price:1670, scale:s=>Math.max(4, s.사무직)},
+    {no:15, name:"클리어파일 20P(분홍)", brand:"현풍", code:"C184-1495", spec:"20P컬러파일 분홍 4322-3", price:1670, scale:s=>Math.max(4, s.사무직)},
+    {no:16, name:"클리어파일 40P(분홍)", brand:"현풍", code:"C184-1556", spec:"40P컬러파일 분홍 4342-3", price:2184, scale:s=>Math.max(4, s.사무직)},
+    {no:17, name:"클립통", brand:"피스", code:"C180-3149", spec:"원형자석클립통", price:902, scale:s=>Math.max(4, s.사무직)},
+    {no:18, name:"클립", brand:"피스", code:"C180-1105", spec:"600크립(1통=10갑)", price:3032, scale:s=>1},
+    {no:19, name:"대용량스테플러", brand:"피스", code:"C180-4935", spec:"HD-2400", price:40946, scale:s=>1},
+    {no:20, name:"스테플러핀 H-13(12MM)", brand:"피스", code:"C180-5068", spec:"H-13(12MM) 1통=10갑", price:11741, scale:s=>1},
+    {no:21, name:"스테플러핀 H-13(24MM)", brand:"피스", code:"C180-5101", spec:"H-13(24MM) 1통=10갑", price:31919, scale:s=>1},
+    {no:22, name:"홀더파일(L홀더)", brand:"현풍", code:"C184-1389", spec:"L홀더 백색 55L", price:143, scale:s=>10},
+    {no:23, name:"유성매직 파랑", brand:"모나미", code:"C184-0256", spec:"파랑(1타=12입)", price:6930, scale:s=>2},
+    {no:24, name:"유성매직 빨강", brand:"모나미", code:"C184-0265", spec:"빨강(1타=12입)", price:6930, scale:s=>2},
+    {no:25, name:"유성매직 검정", brand:"모나미", code:"C184-0274", spec:"검정(1타=12입)", price:6930, scale:s=>2},
+    {no:26, name:"보드마카 파랑", brand:"모나미", code:"C184-0326", spec:"파랑(1타=12입)", price:6930, scale:s=>2},
+    {no:27, name:"보드마카 검정", brand:"모나미", code:"C184-0344", spec:"검정(1타=12입)", price:6930, scale:s=>2},
+    {no:28, name:"보드마카 빨강", brand:"모나미", code:"C184-0335", spec:"빨강(1타=12입)", price:6930, scale:s=>2},
+    {no:29, name:"화이트보드지우개", brand:"문화", code:"C185-2464", spec:"화이트보드용", price:359, scale:s=>4},
+    {no:30, name:"네임펜 파랑", brand:"모나미", code:"C184-0195", spec:"파랑(1타=12입)", price:6930, scale:s=>2},
+    {no:31, name:"네임펜 빨강", brand:"모나미", code:"C184-0201", spec:"빨강(1타=12입)", price:6930, scale:s=>2},
+    {no:32, name:"네임펜 검정", brand:"모나미", code:"C184-0210", spec:"검정(1타=12입)", price:6930, scale:s=>2},
+    {no:33, name:"네임펜(가는글씨용)", brand:"모나미", code:"C184-1857", spec:"검정(1타=12입)", price:6930, scale:s=>1},
+    {no:34, name:"볼펜(3색)", brand:"문화", code:"C185-0518", spec:"3색볼펜S(1타=12입)", price:5758, scale:s=>2},
+    {no:35, name:"FX제타볼펜 빨강", brand:"모나미", code:"C184-4890", spec:"빨강(0.7)(1타=12입)", price:6123, scale:s=>2},
+    {no:36, name:"FX제타볼펜 파랑", brand:"모나미", code:"C184-4881", spec:"파랑(0.7)(1타=12입)", price:6123, scale:s=>2},
+    {no:37, name:"FX제타볼펜 검정", brand:"모나미", code:"C184-2670", spec:"검정(0.7)(1타=12입)", price:6123, scale:s=>2},
+    {no:38, name:"스톱펜", brand:"문화", code:"C185-2491", spec:"향균(0.7) 연+진파랑 12입", price:9135, scale:s=>1},
+    {no:39, name:"형광펜 노랑", brand:"모나미", code:"C184-0450", spec:"노랑(1타=12입)", price:2721, scale:s=>2},
+    {no:40, name:"형광펜 핑크", brand:"모나미", code:"C184-0502", spec:"핑크(1타=12입)", price:2721, scale:s=>2},
+    {no:41, name:"형광펜 녹색", brand:"모나미", code:"C184-0469", spec:"녹색(1타=12입)", price:2721, scale:s=>2},
+    {no:42, name:"원터치인주", brand:"화신공업", code:"C180-4157", spec:"원터치인주100", price:3781, scale:s=>1},
+    {no:43, name:"커터칼(소)", brand:"화신", code:"C181-3632", spec:"K-201", price:343, scale:s=>10},
+    {no:44, name:"커터칼(대)", brand:"화신", code:"C181-4172", spec:"K-206", price:805, scale:s=>10},
+    {no:45, name:"커터칼날(소)", brand:"화신", code:"C181-3775", spec:"K-201B", price:2362, scale:s=>10},
+    {no:46, name:"커터칼날(대)", brand:"화신", code:"C181-3784", spec:"K-214B", price:3946, scale:s=>10},
+    {no:47, name:"연필꽂이", brand:"시스맥스", code:"C170-8260", spec:"WELL&GOOD 쿨그레이", price:2477, scale:s=>Math.max(4, s.사무직)},
+    {no:48, name:"사무용가위", brand:"피스", code:"C180-2247", spec:"M-505", price:796, scale:s=>10},
+    {no:49, name:"포스트잇/팝업디스펜서", brand:"3M", code:"C157-2887", spec:"디스펜서+팝업리필 C-4214(노랑)", price:6303, scale:s=>Math.max(4, s.사무직)},
+    {no:50, name:"수정테이프", brand:"펜맥스", code:"C185-2181", spec:"WH-604(4.2mm)", price:1736, scale:s=>10},
+    {no:51, name:"수정테이프", brand:"펜맥스", code:"C185-2190", spec:"WH-605(5mm)", price:1736, scale:s=>10},
+    {no:52, name:"수정테이프리필", brand:"펜맥스", code:"C185-2215", spec:"WH-605R-2P(5mm)", price:1736, scale:s=>10},
+    {no:53, name:"제침기", brand:"화신공업", code:"C180-3796", spec:"겸용제침기", price:1321, scale:s=>Math.max(4, s.사무직)},
+    {no:54, name:"양면테이프 24*10", brand:"금성", code:"W112-9922", spec:"24*10(1BOX/100EA)", price:41818, scale:s=>sd(1,s,1)},
+    {no:55, name:"양면테이프 48*10", brand:"금성", code:"W112-9931", spec:"48*10(1BOX/50EA)", price:41818, scale:s=>sd(1,s,1)},
+    {no:56, name:"면테이프 녹색48*10", brand:"금성", code:"W115-2151", spec:"녹색48*10", price:829, scale:s=>sd(50,s,20)},
+    {no:57, name:"OPP테이프 투명", brand:"금성", code:"W114-2464", spec:"투명 48*40M(아크릴)55mic", price:493, scale:s=>sd(50,s,20)},
+    {no:58, name:"테이프커터기", brand:"피스", code:"C180-3185", spec:"자석테이프커터기", price:3840, scale:s=>1},
+    {no:59, name:"스카치테이프 581", brand:"3M", code:"C157-2975", spec:"581 다용도(18mmx15M)", price:1498, scale:s=>sd(12,s,6)},
+    {no:60, name:"스카치테이프 SH1825D", brand:"3M", code:"C157-5264", spec:"SH1825D 다용도(18mmx25M)", price:2461, scale:s=>sd(12,s,6)},
+    {no:61, name:"스카치테이프 810D매직", brand:"3M", code:"C157-5246", spec:"810D 매직(18mmx30M)", price:3062, scale:s=>sd(10,s,5)},
+    {no:62, name:"결재판", brand:"현풍", code:"C184-0991", spec:"결재바람(창무) 193", price:2054, scale:s=>Math.max(4, s.사무직)},
+    {no:63, name:"더블클립 소", brand:"피스", code:"C180-1141", spec:"소(1갑=50개)", price:1817, scale:s=>5},
+    {no:64, name:"더블클립 중", brand:"피스", code:"C180-1132", spec:"중(1갑=50개)", price:3032, scale:s=>5},
+    {no:65, name:"더블클립 대", brand:"피스", code:"C180-1123", spec:"대(1갑=30개)", price:3634, scale:s=>5},
+    {no:66, name:"더블클립 특대", brand:"피스", code:"C180-1114", spec:"특대(1갑=10개)", price:2023, scale:s=>5},
+    {no:67, name:"딱풀", brand:"문교", code:"C185-3588", spec:"투명풀16g", price:233, scale:s=>20},
+    {no:68, name:"멀티책꽂이", brand:"시스맥스", code:"C170-3672", spec:"3단-GR(335x208x213)", price:7728, scale:s=>Math.max(4, s.사무직)},
+    {no:69, name:"디럭스칼라서류함", brand:"시스맥스", code:"C170-5351", spec:"4단-GRAY(290x340x240)", price:26565, scale:s=>4},
+    {no:70, name:"서류트레이 3단", brand:"시스맥스", code:"C170-4060", spec:"3단-GRAY(263x336x240)", price:14352, scale:s=>2},
+    {no:71, name:"복사지 A4", brand:"한국제지", code:"C183-3016", spec:"밀크 A4(80G)", price:25432, scale:s=>sd(1,s,1)},
+    {no:72, name:"복사지 A3", brand:"한국제지", code:"C183-1319", spec:"밀크 A3(75G)", price:29240, scale:s=>sd(1,s,1)},
+    {no:73, name:"스탬프패드 흑색", brand:"피스", code:"C180-1178", spec:"흑색", price:2017, scale:s=>1},
+    {no:74, name:"스탬프패드 적색", brand:"피스", code:"C180-1187", spec:"적색", price:2017, scale:s=>1},
+    {no:75, name:"스탬프패드 청색", brand:"피스", code:"C180-1196", spec:"청색", price:2017, scale:s=>1},
+    {no:76, name:"클립보드(투명)", brand:"현풍", code:"C184-0973", spec:"PS투명 클립보드 파랑 15-2", price:2054, scale:s=>Math.max(4, s.사무직)},
+    {no:77, name:"구급함", brand:"일진약품", code:"W832-0423", spec:"스마트1호", price:31682, scale:s=>2},
+    {no:78, name:"종이컵 디스펜서", brand:"삼정크린", code:"W917-1833", spec:"자석 부착형 종이컵 디스펜서", price:7442, scale:s=>1},
+    {no:79, name:"종이컵 수거함", brand:"삼정크린", code:"W917-1842", spec:"종이컵 수거함", price:7808, scale:s=>1},
+    {no:80, name:"휴지통", brand:"창신", code:"C171-4775", spec:"10L(그레이)", price:6044, scale:s=>Math.max(4, s.사무직)},
+    {no:81, name:"멀티탭 5구 3M", brand:"현대일렉트릭", code:"W143-4213", spec:"5구 16A x 3M(HDGM16-53)", price:9438, scale:s=>Math.max(4, s.사무직+s.기전주임+2)},
+    {no:82, name:"멀티탭 5구 1.5M", brand:"현대일렉트릭", code:"W143-4204", spec:"5구 16A x 1.5M(HDGM16-52)", price:7128, scale:s=>Math.max(4, s.사무직+s.기전주임+2)},
+    {no:83, name:"전자호루라기", brand:"smato", code:"W120-3950", spec:"EW-01B(블랙)", price:14235, scale:s=>Math.max(2, s.경비)},
+    {no:84, name:"신호봉", brand:"프로텍터", code:"W870-3431", spec:"HN-50", price:2599, scale:s=>Math.max(2, s.경비)},
+    {no:85, name:"건전지 D형", brand:"벡셀", code:"C142-0089", spec:"D(R20)(1판=2EA)", price:1064, scale:s=>sd(12,s,6)},
+    {no:86, name:"커팅매트 A3", brand:"카피어랜드", code:"C183-8844", spec:"A3 네이비", price:5134, scale:s=>1},
+    {no:87, name:"커팅매트 A2", brand:"카피어랜드", code:"C183-8862", spec:"A2 네이비", price:10269, scale:s=>1},
+    {no:88, name:"라벨프린터", brand:"엡손", code:"C439-2264", spec:"LW-K200BL", price:61880, scale:s=>1},
+    {no:89, name:"라벨테이프(흰색/검정)", brand:"엡손", code:"C439-0673", spec:"SS-18K 흰색/검정", price:10710, scale:s=>5},
+    {no:90, name:"라벨테이프(노랑/검정)", brand:"엡손", code:"C439-0691", spec:"SC-18Y 노랑/검정", price:10710, scale:s=>5},
+    {no:91, name:"카드링", brand:"마그피아", code:"C191-2386", spec:"MCR-40(40mm)(1통=50EA)", price:6528, scale:s=>1},
+    {no:92, name:"자석클립보드(스탠딩)", brand:"마그피아", code:"C191-2775", spec:"MSCB-A4", price:5242, scale:s=>3},
+    {no:93, name:"열쇠보관함", brand:"현대오피스", code:"C183-5032", spec:"120P", price:61132, scale:s=>1},
+    {no:94, name:"USB허브", brand:"펠로우즈", code:"C184-8674", spec:"100045798/USB 3.0 4포트", price:11773, scale:s=>Math.max(4, s.사무직)},
+    {no:95, name:"엔트랩매트", brand:"smato", code:"W117-0616", spec:"4.5Tx1200x5M(적색),EMR-5M", price:92480, scale:s=>1},
+    {no:96, name:"153볼펜 검정", brand:"모나미", code:"C184-0414", spec:"검정(0.7)(1타=12입)", price:2721, scale:s=>5},
+    {no:97, name:"양면폼테이프 12mm", brand:"3M", code:"W825-2256", spec:"#4421W 12*2M(1BOX/36EA)", price:20212, scale:s=>sd(1,s,1)},
+    {no:98, name:"양면폼테이프 24mm", brand:"3M", code:"W825-2283", spec:"#4421W 24*2M(1BOX/20EA)", price:19592, scale:s=>sd(1,s,1)},
+  ],
+
+  공기구: [
+    {no:1,   name:"절연저항계",          spec:"SH-1000M (새한)",            price:37600,  scale:s=>s.기전주임>0?1:0},
+    {no:2,   name:"접지저항계",          spec:"SH-5030S",                   price:201300, scale:s=>s.기전주임>0?1:0},
+    {no:3,   name:"롱로우즈플라이어",    spec:'6"-세신',                    price:7800,   scale:s=>1},
+    {no:4,   name:"P대차 핸드카트",      spec:"중765*455*715",              price:62000,  scale:s=>2},
+    {no:5,   name:"핸드카",              spec:"4륜 2단",                    price:97000,  scale:s=>1},
+    {no:6,   name:"각삽",                spec:"스텐 사각",                  price:9800,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:7,   name:"막삽",                spec:"스텐 일반",                  price:9800,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:8,   name:"공구함4호",           spec:"SMT402-스마토",              price:12800,  scale:s=>1},
+    {no:9,   name:"공구가방",            spec:"SB-3002",                    price:23500,  scale:s=>1},
+    {no:10,  name:"자동토치",            spec:"ST-209",                     price:6800,   scale:s=>1},
+    {no:11,  name:"우의",                spec:"코트형",                     price:9300,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:12,  name:"장화",                spec:"265~275",                    price:9700,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:13,  name:"사다리",              spec:"A형 광폭3단",                price:66000,  scale:s=>1},
+    {no:14,  name:"알미늄사다리",        spec:"2*5단 A형",                  price:63000,  scale:s=>1},
+    {no:15,  name:"쇠톱",                spec:'12"',                        price:4500,   scale:s=>1},
+    {no:16,  name:"쇠톱날",              spec:'12"18T(10개입)',             price:11000,  scale:s=>1},
+    {no:17,  name:"쥐꼬리톱",            spec:"백마",                       price:10200,  scale:s=>1},
+    {no:18,  name:"고무망치",            spec:"24OZ/한신",                  price:4500,   scale:s=>1},
+    {no:19,  name:"빠루망치",            spec:"16 OZ",                      price:5700,   scale:s=>1},
+    {no:20,  name:"오해머",              spec:"8LBS/한신",                  price:28800,  scale:s=>1},
+    {no:21,  name:"돌망치",              spec:"420mm",                      price:22800,  scale:s=>1},
+    {no:22,  name:"파이프렌치",          spec:'12" (세신)',                 price:13200,  scale:s=>1},
+    {no:23,  name:"파이프렌치",          spec:'18" (세신)',                 price:23400,  scale:s=>1},
+    {no:24,  name:"몽키스패너",          spec:'10" (세신)',                 price:10100,  scale:s=>1},
+    {no:25,  name:"몽키스패너",          spec:'15" (세신)',                 price:27400,  scale:s=>1},
+    {no:26,  name:"복스알세트",          spec:"GS-416MA 16P",               price:77000,  scale:s=>1},
+    {no:27,  name:"첼라/워터플라이어",   spec:'12" (로보스터)',             price:27500,  scale:s=>1},
+    {no:28,  name:"다목적 드릴비트세트", spec:"33PCS-보쉬",                 price:19500,  scale:s=>1},
+    {no:29,  name:"볼트커터",            spec:'BC 450 (18")',               price:32000,  scale:s=>1},
+    {no:30,  name:"다목적 가위",         spec:"SM-MS8S",                    price:4600,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:31,  name:"양손가위",            spec:"SB-800A",                    price:21200,  scale:s=>1},
+    {no:32,  name:"글루건",              spec:"GR60(40W)",                  price:15500,  scale:s=>1},
+    {no:33,  name:"글루건심",            spec:"11mm",                       price:7500,   scale:s=>1},
+    {no:34,  name:"뺀치",                spec:'8"(200MM)',                  price:11000,  scale:s=>2},
+    {no:35,  name:"니퍼",                spec:'6" (세신)',                  price:7600,   scale:s=>2},
+    {no:36,  name:"시계드라이버",        spec:"SB-PS6S",                    price:14000,  scale:s=>1},
+    {no:37,  name:"다가네드라이버",      spec:"8*200 세신",                 price:4400,   scale:s=>1},
+    {no:38,  name:"양용주먹드라이버",    spec:"5*60 세신",                  price:5500,   scale:s=>Math.max(2, s.기전주임)},
+    {no:39,  name:"전공양용드라이버",    spec:"150mm 세신",                 price:5200,   scale:s=>Math.max(2, s.기전주임)},
+    {no:40,  name:"전기테이프",          spec:"검정 19*10M(10개입)",        price:6100,   scale:s=>1},
+    {no:41,  name:"테프론테이프",        spec:"일반형 100개입",             price:22400,  scale:s=>1},
+    {no:42,  name:"구리스건",            spec:"SB-GG500P(권총형)",          price:22800,  scale:s=>1},
+    {no:43,  name:"구리스카트리지",      spec:"SB-CG400",                   price:6200,   scale:s=>5},
+    {no:44,  name:"반코팅장갑",          spec:"반코팅",                     price:300,    scale:s=>Math.max(50, (s.기전주임+s.기전주야+s.경비)*10)},
+    {no:45,  name:"목장갑",              spec:"60g",                        price:300,    scale:s=>Math.max(50, (s.기전주임+s.기전주야+s.경비)*10)},
+    {no:46,  name:"폼코팅장갑(절연)",    spec:"슈퍼그립200L",               price:2400,   scale:s=>Math.max(5, s.기전주임+s.기전주야)},
+    {no:47,  name:"건전지",              spec:"AAA(24입)",                  price:19000,  scale:s=>2},
+    {no:48,  name:"건전지",              spec:"AA(12입)",                   price:9500,   scale:s=>4},
+    {no:49,  name:"케이블타이",          spec:"100mm/흑/봉",                price:2800,   scale:s=>sd(1,s,1)},
+    {no:50,  name:"케이블타이",          spec:"140mm/흑/봉",                price:6900,   scale:s=>sd(1,s,1)},
+    {no:51,  name:"케이블타이",          spec:"200mm/흑/봉",                price:12400,  scale:s=>sd(1,s,1)},
+    {no:52,  name:"케이블타이",          spec:"300mm/흑/봉",                price:11500,  scale:s=>sd(1,s,1)},
+    {no:53,  name:"케이블타이",          spec:"370mm/흑/봉",                price:13800,  scale:s=>sd(1,s,1)},
+    {no:54,  name:"칼블럭",              spec:"6*30/봉/200개입",            price:1800,   scale:s=>1},
+    {no:55,  name:"직결피스(와셔형)",    spec:"8x13W 500EA",                price:4600,   scale:s=>1},
+    {no:56,  name:"직결피스(와셔형)",    spec:"8x20W 500EA",                price:6900,   scale:s=>1},
+    {no:57,  name:"직결피스(와셔형)",    spec:"8x32W 500EA",                price:10300,  scale:s=>1},
+    {no:58,  name:"직결피스(접시형)",    spec:"8x13F 500EA",                price:4600,   scale:s=>1},
+    {no:59,  name:"직결피스(접시형)",    spec:"8x20F 500EA",                price:6900,   scale:s=>1},
+    {no:60,  name:"직결피스(접시형)",    spec:"8x32F 500EA",                price:10300,  scale:s=>1},
+    {no:61,  name:"실리콘건",            spec:"SMC-101",                    price:2000,   scale:s=>1},
+    {no:62,  name:"무초산실리콘",        spec:"270ml",                      price:2000,   scale:s=>sd(25,s,10)},
+    {no:63,  name:"순간접착제",          spec:"20g",                        price:3300,   scale:s=>sd(10,s,5)},
+    {no:64,  name:"스티커제거제",        spec:"IS-7510 420ml",              price:4800,   scale:s=>sd(20,s,10)},
+    {no:65,  name:"안전모",              spec:"백색",                       price:4800,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:66,  name:"위험안전테이프",      spec:"롤",                         price:7300,   scale:s=>5},
+    {no:67,  name:"스프레이접착제",      spec:"#77 455ML",                  price:10000,  scale:s=>5},
+    {no:68,  name:"하이스드릴세트",      spec:"13pcs/클리브랜드",           price:13200,  scale:s=>1},
+    {no:69,  name:"콘크리트 기리(드릴)", spec:"3.0파이 (조란)",             price:1600,   scale:s=>10},
+    {no:70,  name:"콘크리트 기리(드릴)", spec:"6.0파이 (조란)",             price:2100,   scale:s=>10},
+    {no:71,  name:"콘크리트 기리(드릴)", spec:"6.5파이 (조란)",             price:2200,   scale:s=>10},
+    {no:72,  name:"알루미늄자석수평",    spec:'300mm (12")',                price:7500,   scale:s=>1},
+    {no:73,  name:"이지스트리퍼",        spec:"세신",                       price:16400,  scale:s=>1},
+    {no:74,  name:"컷팅날/절단석",       spec:'4"/3M',                     price:3000,   scale:s=>sd(25,s,10)},
+    {no:75,  name:"보안경",              spec:"3M OX1000",                  price:5500,   scale:s=>Math.max(5, s.기전주임+s.기전주야+s.경비)},
+    {no:76,  name:"디지털테스터(포켓)",  spec:"ST-3230",                    price:25500,  scale:s=>1},
+    {no:77,  name:"모듈러압착기",        spec:"SB-568",                     price:18100,  scale:s=>1},
+    {no:78,  name:"네오화이버줄자",      spec:"KMC-330 (50M*13mm)",        price:22200,  scale:s=>1},
+    {no:79,  name:"줄자",                spec:"5.5M*19",                    price:7600,   scale:s=>Math.max(4, s.기전주임+s.기전주야)},
+    {no:80,  name:"볼렌치세트(엑스트라롱)",spec:"SB-BWS9EL",               price:21600,  scale:s=>1},
+    {no:81,  name:"충전라이트(LED)",     spec:"SLR-1000HLM2",               price:17000,  scale:s=>Math.max(3, s.기전주임+1)},
+    {no:82,  name:"LED 작업등",          spec:"WL-301-2 (충전식)",          price:17200,  scale:s=>2},
+    {no:83,  name:"전선릴",              spec:"1.5SQ*50M",                  price:90000,  scale:s=>1},
+    {no:84,  name:"수중펌프",            spec:'2" 단단',                    price:330000, scale:s=>1},
+    {no:85,  name:"나선호스(저압)",      spec:"50MM*20M",                   price:79000,  scale:s=>1},
+    {no:86,  name:"편사호스",            spec:"16mm*45M",                   price:26100,  scale:s=>1},
+    {no:87,  name:"분사기노즐",          spec:"ASG-6",                      price:5500,   scale:s=>1},
+    {no:88,  name:"천막호스",            spec:"50A*70M",                    price:24000,  scale:s=>1},
+    {no:89,  name:"빠루",                spec:"스마토 / 1M",                price:10100,  scale:s=>1},
+    {no:90,  name:"안전벨트 전체식",     spec:"DMS202-3SB",                 price:40000,  scale:s=>Math.max(2, s.기전주임)},
+    {no:91,  name:"플라스틱체인",        spec:"8mm/45M/롤",                 price:45000,  scale:s=>4},
+    {no:92,  name:"그라인더 4\"",        spec:"디월트 충전(본체만)",        price:190000, scale:s=>1},
+    {no:93,  name:"충전 임팩/드릴 세트", spec:"DCK2062P2(20V/5.0Ah) BL",   price:548000, scale:s=>1},
+    {no:94,  name:"소켓어댑터",          spec:"디월트1/2\"",                price:3000,   scale:s=>1},
+    {no:95,  name:"도금비트날",          spec:"베셀 110mm",                 price:3900,   scale:s=>3},
+    {no:96,  name:"도금비트날",          spec:"베셀 200mm",                 price:7200,   scale:s=>3},
+    {no:97,  name:"PP로프",              spec:"6mm*200M",                   price:17600,  scale:s=>3},
+    {no:98,  name:"앵글선반",            spec:"5단",                        price:110000, scale:s=>2},
+    {no:99,  name:"사다리(LS)",          spec:"LS형 5단",                   price:145000, scale:s=>1},
+    {no:100, name:"사다리보강대",        spec:"LS사다리용(1SET=4EA)",       price:32000,  scale:s=>1},
+    {no:101, name:"포켓몽키",            spec:"SM-C10S (155mm)",            price:9700,   scale:s=>2},
+    {no:102, name:"P대차 핸드카트",      spec:"대",                         price:71000,  scale:s=>1},
+    {no:103, name:"석고보드앵커",        spec:"100ea",                      price:13500,  scale:s=>1},
+    {no:104, name:"병목나사 피스",       spec:"500EA",                      price:6500,   scale:s=>1},
+    {no:105, name:"열쇠고리",            spec:"100개",                      price:10000,  scale:s=>1},
+  ],
+
+  미화: [
+    {no:1,  name:"스파크 가루세제",        spec:"1kg",                        price:3000,   scale:s=>Math.max(sd(5,s,3), s.미화원+s.외곽미화)},
+    {no:2,  name:"고무장갑",               spec:"선밴(분홍)",                 price:2000,   scale:s=>Math.max(sd(10,s,5), (s.미화원+s.외곽미화)*2)},
+    {no:3,  name:"도로비(개량비)",         spec:"삼각개량비",                 price:6300,   scale:s=>Math.max(sd(5,s,3), s.미화원+s.외곽미화)},
+    {no:4,  name:"락스",                   spec:"유연 2L*6",                  price:8900,   scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/4))},
+    {no:5,  name:"교체형 마포걸레",        spec:"경편",                       price:3300,   scale:s=>Math.max(sd(20,s,10), (s.미화원+s.외곽미화)*4)},
+    {no:6,  name:"마포대",                 spec:"1500 알루미늄",              price:4600,   scale:s=>Math.max(sd(15,s,8), (s.미화원+s.외곽미화)*3)},
+    {no:7,  name:"주방세제(대용량)",       spec:"하이퐁12kg",                 price:16500,  scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/5))},
+    {no:8,  name:"마포탈수기",             spec:"핸드짤순이(대)",             price:67000,  scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:9,  name:"유리세정제",             spec:"600ml",                      price:1300,   scale:s=>Math.max(sd(12,s,6), (s.미화원+s.외곽미화)*2)},
+    {no:10, name:"집게",                   spec:"600mm",                      price:2500,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
+    {no:11, name:"헤라(경화형)",           spec:'2"S',                        price:1600,   scale:s=>Math.max(6, s.미화원+s.외곽미화)},
+    {no:12, name:"플라스틱용기",           spec:"만능용기 75L",               price:15000,  scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:13, name:"플라스틱용기 운반구",    spec:"75L",                        price:26000,  scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:14, name:"갈대비(롱)",             spec:"롱",                         price:4100,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:15, name:"대나무비",               spec:"60*190",                     price:3500,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:16, name:"점보롤",                 spec:"4묶음 1박스",                price:45000,  scale:s=>Math.max(sd(4,s,2), Math.ceil((s.미화원+s.외곽미화)/2))},
+    {no:17, name:"알뜨랑비누",             spec:"140g*3",                     price:5900,   scale:s=>Math.max(sd(15,s,8), (s.미화원+s.외곽미화)*2)},
+    {no:18, name:"무궁화 빨래비누",        spec:"230g",                       price:1100,   scale:s=>Math.max(sd(16,s,8), (s.미화원+s.외곽미화)*3)},
+    {no:19, name:"다목적수세미(10P)",      spec:"10매",                       price:9600,   scale:s=>5},
+    {no:20, name:"철수세미",               spec:"40g",                        price:500,    scale:s=>20},
+    {no:21, name:"수수장비",               spec:"40*85",                      price:5000,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:22, name:"외곽쓰레받기/PVC",       spec:"29*67cm",                    price:7800,   scale:s=>Math.max(6, s.미화원+s.외곽미화)},
+    {no:23, name:"속장갑",                 spec:"청줄 10조",                  price:2400,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
+    {no:24, name:"극세사 청소포",          spec:"바둑크리너 40*60(10매)",     price:6500,   scale:s=>10},
+    {no:25, name:"SR끈",                   spec:"적색/대",                    price:3300,   scale:s=>20},
+    {no:26, name:"Pb-1",                   spec:"20L",                        price:18500,  scale:s=>2},
+    {no:27, name:"청소기(건습식)",         spec:"경서 50L",                   price:300000, scale:s=>Math.max(2, Math.ceil((s.미화원+s.외곽미화)/5))},
+    {no:28, name:"페이퍼타올",             spec:"박스",                       price:33000,  scale:s=>3},
+    {no:29, name:"행주",                   spec:"3개입",                      price:1000,   scale:s=>10},
+    {no:30, name:"화장지/휴지",            spec:"두루마리/3겹/30개입",        price:15000,  scale:s=>2},
+    {no:31, name:"휴지통",                 spec:"50L(머스타드)",              price:27000,  scale:s=>3},
+    {no:32, name:"플라스틱 빗자루",        spec:"중",                         price:2200,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
+    {no:33, name:"화장실휴지통",           spec:"25L",                        price:12900,  scale:s=>Math.max(8, s.미화원+s.외곽미화)},
+    {no:34, name:"미화원 장화",            spec:"여장화",                     price:8000,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:35, name:"자루바가지",             spec:"-",                          price:3300,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:36, name:"변기솔",                 spec:"변기솔",                     price:2700,   scale:s=>10},
+    {no:37, name:"압축기",                 spec:"파워3중",                    price:4700,   scale:s=>2},
+    {no:38, name:"피스톤압축기",           spec:"파워피스톤",                 price:5300,   scale:s=>2},
+    {no:39, name:"양동이",                 spec:"10L",                        price:5800,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
+    {no:40, name:"점보롤 전용용기",        spec:"-",                          price:5500,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
+    {no:41, name:"플라스틱빗자루",         spec:"도로비",                     price:5000,   scale:s=>2},
+  ],
+};
+
+// ── 판매가 계산 및 테이블 갱신 ──
+function recalcSellPrices(cat) {
+  const margin = parseFloat(document.getElementById(`margin_${cat}`)?.value) || 0;
+  DATA[cat].forEach((f, i) => {
+    const supEl = document.getElementById(`sup_${cat}_${i}`);
+    const selEl = document.getElementById(`sel_${cat}_${i}`);
+    const qtyEl = document.getElementById(`qty_${cat}_${i}`);
+    const amtEl = document.getElementById(`amt_${cat}_${i}`);
+    if (!supEl || !selEl) return;
+    const supply = parseInt(supEl.value.replace(/[^0-9]/g,'')) || 0;
+    const sp = sellPrice(supply, margin);
+    selEl.value = sp > 0 ? sp.toLocaleString('ko-KR') : '';
+    const qty = parseInt(qtyEl?.value) || 0;
+    const amt = qty * sp;
+    if (amtEl) amtEl.textContent = amt > 0 ? fmt(amt) : (cat==='가구'&&f.no===22?'별도산정':'-');
+  });
+  recalcSub(cat);
+}
+
+function recalcSub(cat) {
+  let sub = 0;
+  DATA[cat].forEach((f, i) => {
+    const qty = parseInt(document.getElementById(`qty_${cat}_${i}`)?.value) || 0;
+    const selEl = document.getElementById(`sel_${cat}_${i}`);
+    const sp = selEl ? parseInt(selEl.value.replace(/[^0-9]/g,'')) || 0 : 0;
+    sub += qty * sp;
+  });
+  const vat = Math.round(sub * 0.1);
+  const el = id => document.getElementById(id);
+  if (el(`sub_${cat}`)) el(`sub_${cat}`).textContent = fmt(sub);
+  if (el(`vat_${cat}`)) el(`vat_${cat}`).textContent = fmt(vat);
+  if (el(`tot_${cat}`)) el(`tot_${cat}`).textContent = fmt(sub + vat);
+
+  // grand total
+  let grand = 0;
+  Object.keys(DATA).forEach(c => {
+    DATA[c].forEach((f, i) => {
+      const qty = parseInt(document.getElementById(`qty_${c}_${i}`)?.value) || 0;
+      const selEl = document.getElementById(`sel_${c}_${i}`);
+      const sp = selEl ? parseInt(selEl.value.replace(/[^0-9]/g,'')) || 0 : 0;
+      grand += qty * sp;
+    });
+  });
+  const grandEl = document.getElementById('grand_total');
+  if (grandEl) grandEl.textContent = `전체 합계 (VAT포함): ${Math.round(grand * 1.1).toLocaleString('ko-KR')}원`;
+}
+
+// ── 테이블 HTML 생성 ──
+function makeTable(cat, items, s, margin) {
+  let rows = '';
+  items.forEach((f, i) => {
+    const qty = f.scale(s);
+    const supply = f.price;
+    const sp = sellPrice(supply, margin);
+    const amt = qty * sp;
+    const brand = f.brand ? `<span style="font-size:10px;color:#888">${f.brand}</span><br>` : '';
+    const code  = f.code  ? `<span style="font-size:9px;color:#bbb">${f.code}</span>` : '';
+    rows += `<tr>
+      <td class="tc" style="color:#999;font-size:11px">${f.no}</td>
+      <td class="tl" style="min-width:90px">${brand}${f.name}</td>
+      <td class="tc supply-td" style="font-size:10px;color:#777;min-width:90px">${f.spec}${code?'<br>'+code:''}</td>
+      <td class="tc">
+        <input type="number" class="ni" id="qty_${cat}_${i}" value="${qty}" min="0"
+          oninput="recalcSub('${cat}')"/>
+      </td>
+      <td class="tr supply-td">
+        <input type="text" class="pi" id="sup_${cat}_${i}"
+          value="${supply > 0 ? supply.toLocaleString('ko-KR') : ''}"
+          placeholder="공급단가"
+          inputmode="numeric"
+          oninput="this.value=this.value.replace(/[^0-9,]/g,'');recalcSellPrices('${cat}')"/>
+      </td>
+      <td class="tr">
+        <input type="text" class="si" id="sel_${cat}_${i}"
+          value="${sp > 0 ? sp.toLocaleString('ko-KR') : ''}"
+          placeholder="판매가"
+          inputmode="numeric"
+          oninput="this.value=this.value.replace(/[^0-9,]/g,'');recalcSub('${cat}')"/>
+      </td>
+      <td class="tr" id="amt_${cat}_${i}">${amt>0?fmt(amt):(cat==='가구'&&f.no===22?'별도산정':'-')}</td>
+    </tr>`;
+  });
+  return `
+  <div class="margin-bar">
+    <label>마진율</label>
+    <input type="number" id="margin_${cat}" value="${margin}" min="0" max="100" step="0.5"
+      oninput="margins['${cat}']=parseFloat(this.value)||0;recalcSellPrices('${cat}')"/>
+    <span class="hint">%</span>
+    <button class="btn-apply" onclick="recalcSellPrices('${cat}')">판매가 재계산</button>
+    <span class="hint">※ 판매가 = 공급단가 × (1 + 마진율%) → 10원 올림</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr>
+      <th style="width:32px">NO</th>
+      <th style="text-align:left">품목명</th>
+      <th class="supply-th" style="min-width:80px">규격/모델명</th>
+      <th style="width:60px">수량</th>
+      <th class="supply-th" style="width:100px">공급단가(원)</th>
+      <th style="width:100px">판매가(원)</th>
+      <th style="width:100px">금액(원)</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  </div>
+  <div class="total-row">
+    <div class="total-box">
+      <table>
+        <tr><td class="tl2">소&nbsp;&nbsp;&nbsp;계</td><td class="tr" id="sub_${cat}">-</td></tr>
+        <tr><td class="tl2">부가세 (10%)</td><td class="tr" id="vat_${cat}">-</td></tr>
+        <tr class="grand"><td class="tl2">합&nbsp;&nbsp;&nbsp;계</td><td class="tr" id="tot_${cat}">-</td></tr>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ── 탭 전환 ──
+let activeTab = '가구';
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.style.display = p.dataset.pane === tab ? '' : 'none');
+}
+
+// ── 메인 계산 ──
+function calculate() {
+  const aptName  = document.getElementById('aptName').value.trim() || '○○아파트';
+  const 세대수   = parseInt(document.getElementById('세대수').value) || 0;
+  const 소장     = parseInt(document.getElementById('소장').value)     || 0;
+  const 경리대리 = parseInt(document.getElementById('경리대리').value) || 0;
+  const 관리과장 = parseInt(document.getElementById('관리과장').value) || 0;
+  const 서무주임 = parseInt(document.getElementById('서무주임').value) || 0;
+  const 기전주임 = parseInt(document.getElementById('기전주임').value) || 0;
+  const 기전주야 = parseInt(document.getElementById('기전주야').value) || 0;
+  const 경비     = parseInt(document.getElementById('경비').value)     || 0;
+  const 미화원   = parseInt(document.getElementById('미화원').value)   || 0;
+  const 외곽미화 = parseInt(document.getElementById('외곽미화').value) || 0;
+
+  const s = {
+    소장, 경리대리, 관리과장, 서무주임, 기전주임, 기전주야, 경비, 미화원, 외곽미화,
+    사무직: 소장 + 경리대리 + 관리과장 + 서무주임,
+    기전:   기전주임 + 기전주야,
+    미화:   미화원 + 외곽미화,
+    세대수,
+    총원: 소장+경리대리+관리과장+서무주임+기전주임+기전주야+경비+미화원+외곽미화
+  };
+
+  const today = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  const catMap = {가구:'사무용가구', 집기:'사무집기', 용품:'사무용품', 공기구:'공기구', 미화:'미화용품'};
+
+  let tabsHtml = '<div class="tabs">';
+  let panesHtml = '';
+  Object.entries(catMap).forEach(([key, label], idx) => {
+    const m = margins[key] || 0;
+    tabsHtml += `<div class="tab${idx===0?' active':''}" data-tab="${key}" onclick="switchTab('${key}')">${label}<span class="tab-badge">${DATA[key].length}품목</span></div>`;
+    panesHtml += `<div class="tab-pane" data-pane="${key}" style="display:${idx===0?'':'none'}">${makeTable(key, DATA[key], s, m)}</div>`;
+  });
+  tabsHtml += '</div>';
+
+  document.getElementById('quoteArea').innerHTML = `
+    <div class="toolbar">
+      <div>
+        <div class="apt-title">${aptName}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">견적일: ${today}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-sm btn-reset" onclick="location.reload()">↺ 초기화</button>
+        <button class="btn-sm btn-print" onclick="window.print()">🖨 인쇄/PDF</button>
+      </div>
+    </div>
+    <div class="summary-bar">
+      <span class="sb">🏠 ${세대수.toLocaleString()}세대</span>
+      <span class="sb">👥 총 ${s.총원}명</span>
+      <span class="sb">사무직 ${s.사무직}명</span>
+      <span class="sb">기전직 ${s.기전}명</span>
+      <span class="sb">경비 ${경비}명</span>
+      <span class="sb">미화 ${미화원}명 + 외곽 ${외곽미화}명</span>
+    </div>
+    ${tabsHtml}
+    ${panesHtml}
+    <div id="grand_total" class="grand-bar">전체 합계 계산 중...</div>
+    <p class="note">※ 수량·공급단가 수정 가능 | 판매가는 마진율 적용 후 10원 올림 자동계산 | 인쇄 시 공급단가 숨김</p>
+  `;
+  activeTab = '가구';
+  // 전체 금액 초기 계산
+  Object.keys(DATA).forEach(c => recalcSub(c));
+}
+</script>
+</body>
+</html>
