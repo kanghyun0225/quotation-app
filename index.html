@@ -229,19 +229,18 @@ const DATA = {
   집기: [
     {no:1,  name:"데스크탑(조립) 업",          spec:"i3-13세대/16GB/500GB SSD",    price:720000, scale: s => s.사무직},
     {no:2,  name:"데스크탑(조립)",             spec:"i3-13세대/8GB/256GB SSD",     price:560000, scale: s => s.기전주임+Math.ceil(s.기전주야/2)},
-    {no:3,  name:'24" 평면모니터',             spec:"중소기업",                      price:90000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:3,  name:'24" 평면모니터',             spec:"중소기업",                      price:90000,  scale: s => s.사무직*2+s.기전주임+Math.ceil(s.기전주야/2)},
     {no:4,  name:"OS",                        spec:"WIN11 정품",                   price:150000, scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
     {no:5,  name:"키보드 마우스 세트",          spec:"장패드포함",                    price:30000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
     {no:6,  name:"스피커",                     spec:"-",                            price:10000,  scale: s => s.사무직+Math.ceil(s.기전주임/2)},
-    {no:7,  name:"전자레인지",                  spec:"삼성",                         price:130000, scale: s => 1+(s.경비>0?1:0)+(s.미화원+s.외곽미화>0?1:0)},
+    {no:7,  name:"전자레인지",                  spec:"삼성",                         price:130000, scale: s => 1+(s.미화원+s.외곽미화>0?1:0)},
     {no:8,  name:"냉장고(관리사무소)",          spec:"410L / 삼성",                  price:690000, scale: s => 1},
-    {no:9,  name:"전기포트",                   spec:"-",                            price:38000,  scale: s => 1},
+    {no:9,  name:"전기포트",                   spec:"-",                            price:38000,  scale: s => 1+(s.미화원+s.외곽미화>0?1:0)+(s.경비>0?1:0)},
     {no:10, name:"멀티탭",                     spec:"6구5M",                        price:15000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
     {no:11, name:"냉장고(미화·경비)",          spec:"121L / LG",                    price:310000, scale: s => (s.경비>0||s.미화원+s.외곽미화>0)?1:0},
     {no:12, name:"전기압력밥솥",               spec:"쿠쿠 10인",                     price:228000, scale: s => (s.경비>0?1:0)+(s.미화원+s.외곽미화>0?1:0)},
-    {no:13, name:"복합기(엡손무한잉크)",        spec:"팩스/복사/스캔",                price:370000, scale: s => 1},
+    {no:13, name:"복합기(엡손무한잉크)",        spec:"팩스/복사/스캔",                price:370000, scale: s => s.소장},
     {no:14, name:"랜선 및 전기작업",           spec:"랜선포설/콘센트/허브포함",       price:80000,  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
-    {no:15, name:"데스크탑(조립) 경비실",      spec:"셀러론/8GB/256GB SSD",         price:450000, scale: s => s.경비>0?1:0},
   ],
 
   용품: [
