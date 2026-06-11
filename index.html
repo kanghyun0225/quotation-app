@@ -216,9 +216,9 @@ const DATA = {
     {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:180000, note:"대형파티션",  scale: s => s.소장},
     {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:150000, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임+s.기전주야},
     {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:120000, note:"소형파티션",  scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
-    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직-s.소장+s.기전주임+s.기전주야},
-    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
-    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
+    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직+s.기전주임+s.기전주야},
+    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직+s.기전주임+s.기전주야)*1.5)},
+    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직+s.기전주임+s.기전주야)*1.5)},
     {no:22, name:"설치 배송비",         spec:"-",                   price:0,      note:"별도산정",    scale: s => 1},
   ],
 
@@ -678,4 +678,5 @@ function calculate() {
     <p class="note">※ 수량·공급단가 수정 가능 | 판매가는 마진율 적용 후 10원 올림 자동계산 | 인쇄 시 공급단가 숨김</p>
   `;
   activeTab = '가구';
-  // 전체 금액 초기 
+  // 전체 금액 초기 계산
+  Object.keys(DATA).
