@@ -130,6 +130,10 @@ tr:hover td{background:#f5f8fc}
         <label>세대수</label>
         <input type="number" id="세대수" value="600" min="0">
       </div>
+      <div class="form-row">
+        <label>지역</label>
+        <input type="text" id="지역" placeholder="예) 서울">
+      </div>
 
       <div class="section-title">👔 관리소 직원</div>
       <div class="form-row"><label>소장</label><input type="number" id="소장" value="1" min="0" oninput="updateTotal()"></div>
@@ -198,28 +202,28 @@ const margins = {가구: 15, 집기: 15, 용품: 20, 공기구: 20, 미화: 20};
 const DATA = {
 
   가구: [
-    {no:1,  name:"망펄 탑책상",          spec:"1800*800*720",       price:450000, note:"소장용",      scale: s => s.소장},
-    {no:2,  name:"망펄 탑책상",          spec:"1400*800*720",       price:320000, note:"일반직원",    scale: s => s.사무직-s.소장 + Math.ceil(s.기전주야/2)},
-    {no:3,  name:"펜목재 이동서랍 망펄", spec:"420*520*585",        price:85000,  note:"직원서랍",    scale: s => s.사무직 + s.기전주임 + Math.ceil(s.기전주야/2)},
-    {no:4,  name:"원형테이블",           spec:"900*720/원통형",      price:180000, note:"소장실",      scale: s => s.소장>0?1:0},
-    {no:5,  name:"회의용사각테이블",     spec:"1800*900*720",       price:350000, note:"회의실",      scale: s => s.세대수>600?2:1},
-    {no:6,  name:"5단올문장",             spec:"800*400*1880",       price:220000, note:"대형책장",    scale: s => s.소장+s.경리대리+s.관리과장+s.서무주임*2},
-    {no:7,  name:"2단올문장",             spec:"800*400*825",        price:120000, note:"소형책장",    scale: s => s.경리대리*2+s.서무주임*2},
-    {no:8,  name:"2인라카장",            spec:"600*550*1900",       price:180000, note:"관리소직원",   scale: s => Math.ceil((s.사무직+s.기전주임+s.기전주야)/2)},
-    {no:9,  name:"4인라카장",            spec:"600*550*1900",       price:320000, note:"경비/미화",    scale: s => Math.ceil((s.경비+s.미화원+s.외곽미화)/4)},
-    {no:10, name:"망펄 2단 탑협탁",      spec:"400*800*720",        price:95000,  note:"직원협탁",    scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
-    {no:11, name:"킹덤중역의자",         spec:"중역의자",             price:350000, note:"소장의자",    scale: s => s.소장},
-    {no:12, name:"사무용의자",           spec:"S1매쉬",              price:120000, note:"일반의자",    scale: s => s.사무직-s.소장+s.기전주임},
-    {no:13, name:"회의용의자",           spec:"랙스",                price:65000,  note:"회의의자",    scale: s => (s.소장>0?1:0)*4 + (s.세대수>600?2:1)*6},
-    {no:14, name:"민원인대기의자",       spec:"3인용",               price:150000, note:"민원대기",    scale: s => Math.ceil(s.세대수/700)},
-    {no:15, name:"카운터상판",           spec:"1850*350",            price:250000, note:"민원카운터",  scale: s => s.경리대리+s.서무주임},
-    {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:180000, note:"대형파티션",  scale: s => s.소장},
-    {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:150000, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임+Math.ceil(s.기전주야/2)},
-    {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:120000, note:"소형파티션",  scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+Math.ceil(s.기전주야/2))*1.5)},
-    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
-    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직+s.기전주임+Math.ceil(s.기전주야/2))*1.5)},
-    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직+s.기전주임+Math.ceil(s.기전주야/2))*1.5)},
-    {no:22, name:"설치 배송비",         spec:"-",                   price:0,      note:"별도산정",    scale: s => 1},
+    {no:1,  name:"망펄 탑책상",          spec:"1800*800*720",       price:0, note:"소장용",      scale: s => s.소장},
+    {no:2,  name:"망펄 탑책상",          spec:"1400*800*720",       price:0, note:"일반직원",    scale: s => s.사무직-s.소장 + Math.ceil(s.기전주야/2)},
+    {no:3,  name:"펜목재 이동서랍 망펄", spec:"420*520*585",        price:0, note:"직원서랍",    scale: s => s.사무직 + s.기전주임 + Math.ceil(s.기전주야/2)},
+    {no:4,  name:"원형테이블",           spec:"900*720/원통형",      price:0, note:"소장실",      scale: s => s.소장>0?1:0},
+    {no:5,  name:"회의용사각테이블",     spec:"1800*900*720",       price:0, note:"회의실",      scale: s => s.세대수>600?2:1},
+    {no:6,  name:"5단올문장",             spec:"800*400*1880",       price:0, note:"대형책장",    scale: s => s.소장+s.경리대리+s.관리과장+s.서무주임*2},
+    {no:7,  name:"2단올문장",             spec:"800*400*825",        price:0, note:"소형책장",    scale: s => s.경리대리*2+s.서무주임*2},
+    {no:8,  name:"2인라카장",            spec:"600*550*1900",       price:0, note:"관리소직원",   scale: s => Math.ceil((s.사무직+s.기전주임+s.기전주야)/2)},
+    {no:9,  name:"4인라카장",            spec:"600*550*1900",       price:0, note:"경비/미화",    scale: s => Math.ceil((s.경비+s.미화원+s.외곽미화)/4)},
+    {no:10, name:"망펄 2단 탑협탁",      spec:"400*800*720",        price:0, note:"직원협탁",    scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:11, name:"킹덤중역의자",         spec:"중역의자",             price:0, note:"소장의자",    scale: s => s.소장},
+    {no:12, name:"사무용의자",           spec:"S1매쉬",              price:0, note:"일반의자",    scale: s => s.사무직-s.소장+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:13, name:"회의용의자",           spec:"랙스",                price:0, note:"회의의자",    scale: s => (s.소장>0?1:0)*4 + (s.세대수>600?2:1)*6},
+    {no:14, name:"민원인대기의자",       spec:"3인용",               price:0, note:"민원대기",    scale: s => Math.ceil(s.세대수/700)},
+    {no:15, name:"카운터상판",           spec:"1850*350",            price:0, note:"민원카운터",  scale: s => s.경리대리+s.서무주임},
+    {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:0, note:"대형파티션",  scale: s => s.소장},
+    {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:0, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:0, note:"소형파티션",  scale: s => s.관리과장*2+s.기전주임*2+s.경리대리+s.서무주임+(s.경리대리>0&&s.서무주임>0?1:0)+Math.ceil(s.기전주야/2)+(Math.ceil(s.기전주야/2)>1?1:0)},
+    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:0, note:"미니파티션",  scale: s => s.사무직+s.기전주임+Math.ceil(s.기전주야/2)},
+    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:0, note:"연결부속",    scale: s => s.관리과장*2+s.기전주임*2+s.경리대리+s.서무주임+(s.경리대리>0&&s.서무주임>0?1:0)+Math.ceil(s.기전주야/2)+(Math.ceil(s.기전주야/2)>1?1:0)},
+    {no:21, name:"파티션부속",          spec:"마감바",               price:0, note:"마감",        scale: s => s.관리과장*2+s.기전주임*2+s.경리대리+s.서무주임+(s.경리대리>0&&s.서무주임>0?1:0)+Math.ceil(s.기전주야/2)+(Math.ceil(s.기전주야/2)>1?1:0)},
+    {no:22, name:"설치 배송비",         spec: s => s.지역 || '-',   price:0, note:"별도산정",    scale: s => 1},
   ],
 
   집기: [
@@ -551,10 +555,11 @@ function makeTable(cat, items, s, margin) {
     const amt = qty * sp;
     const brand = f.brand ? `<span style="font-size:10px;color:#888">${f.brand}</span><br>` : '';
     const code  = f.code  ? `<span style="font-size:9px;color:#bbb">${f.code}</span>` : '';
+    const spec  = typeof f.spec === 'function' ? f.spec(s) : f.spec;
     rows += `<tr>
       <td class="tc" style="color:#999;font-size:11px">${f.no}</td>
       <td class="tl" style="min-width:90px">${brand}${f.name}</td>
-      <td class="tc supply-td" style="font-size:10px;color:#777;min-width:90px">${f.spec}${code?'<br>'+code:''}</td>
+      <td class="tc supply-td" style="font-size:10px;color:#777;min-width:90px">${spec}${code?'<br>'+code:''}</td>
       <td class="tc">
         <input type="number" class="ni" id="qty_${cat}_${i}" value="${qty}" min="0"
           oninput="recalcSub('${cat}')"/>
@@ -632,8 +637,9 @@ function calculate() {
   const 미화원   = parseInt(document.getElementById('미화원').value)   || 0;
   const 외곽미화 = parseInt(document.getElementById('외곽미화').value) || 0;
 
+  const 지역 = document.getElementById('지역').value.trim() || '';
   const s = {
-    소장, 경리대리, 관리과장, 서무주임, 기전주임, 기전주야, 경비, 미화원, 외곽미화,
+    소장, 경리대리, 관리과장, 서무주임, 기전주임, 기전주야, 경비, 미화원, 외곽미화, 지역,
     사무직: 소장 + 경리대리 + 관리과장 + 서무주임,
     기전:   기전주임 + 기전주야,
     미화:   미화원 + 외곽미화,
@@ -666,13 +672,4 @@ function calculate() {
     </div>
     <div class="summary-bar">
       <span class="sb">🏠 ${세대수.toLocaleString()}세대</span>
-      <span class="sb">👥 총 ${s.총원}명</span>
-      <span class="sb">사무직 ${s.사무직}명</span>
-      <span class="sb">기전직 ${s.기전}명</span>
-      <span class="sb">경비 ${경비}명</span>
-      <span class="sb">미화 ${미화원}명 + 외곽 ${외곽미화}명</span>
-    </div>
-    ${tabsHtml}
-    ${panesHtml}
-    <div id="grand_total" class="grand-bar">전체 합계 계산 중...</div>
-    <p class="note">※ 수량·공급단가 수정 가능 | 판매가는 마진율 적용 후 10원 올림 
+      <span class="sb">👥 총 ${s.총원
