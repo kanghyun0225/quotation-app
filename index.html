@@ -199,8 +199,8 @@ const DATA = {
 
   가구: [
     {no:1,  name:"망펄 탑책상",          spec:"1800*800*720",       price:450000, note:"소장용",      scale: s => s.소장},
-    {no:2,  name:"망펄 탑책상",          spec:"1400*800*720",       price:320000, note:"일반직원",    scale: s => s.사무직-s.소장 + Math.ceil(s.기전주야/2)},
-    {no:3,  name:"펜목재 이동서랍 망펄", spec:"420*520*585",        price:85000,  note:"직원서랍",    scale: s => s.사무직 + s.기전주임 + Math.ceil(s.기전주야/2)},
+    {no:2,  name:"망펄 탑책상",          spec:"1400*800*720",       price:320000, note:"일반직원",    scale: s => s.사무직-s.소장 + s.기전주야},
+    {no:3,  name:"펜목재 이동서랍 망펄", spec:"420*520*585",        price:85000,  note:"직원서랍",    scale: s => s.사무직 + s.기전주임 + s.기전주야},
     {no:4,  name:"원형테이블",           spec:"900*720/원통형",      price:180000, note:"소장실",      scale: s => s.소장>0?1:0},
     {no:5,  name:"회의용사각테이블",     spec:"1800*900*720",       price:350000, note:"회의실",      scale: s => s.세대수>600?2:1},
     {no:6,  name:"책장/5단/고급/올문",   spec:"800*400*1880",       price:220000, note:"대형책장",    scale: s => s.소장+s.경리대리+s.관리과장+2},
@@ -212,13 +212,13 @@ const DATA = {
     {no:12, name:"사무용의자",           spec:"S1매쉬",              price:120000, note:"일반의자",    scale: s => s.사무직-s.소장+s.기전주임},
     {no:13, name:"회의용의자",           spec:"랙스",                price:65000,  note:"회의의자",    scale: s => (s.소장>0?1:0)*4 + (s.세대수>600?2:1)*6},
     {no:14, name:"민원인대기의자",       spec:"3인용",               price:150000, note:"민원대기",    scale: s => Math.ceil(s.세대수/700)},
-    {no:15, name:"카운터상판",           spec:"1850*350",            price:250000, note:"민원카운터",  scale: s => s.세대수>600?2:1},
-    {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:180000, note:"대형파티션",  scale: s => 1},
-    {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:150000, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임},
-    {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:120000, note:"소형파티션",  scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
-    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직-s.소장+s.기전주임},
-    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
-    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직-s.소장+s.기전주임)*1.5)},
+    {no:15, name:"카운터상판",           spec:"1850*350",            price:250000, note:"민원카운터",  scale: s => s.경리대리+s.서무주임},
+    {no:16, name:"파티션",              spec:"H1100*W1800*45T",     price:180000, note:"대형파티션",  scale: s => s.소장},
+    {no:17, name:"파티션",              spec:"H1100*W1400*45T",     price:150000, note:"중형파티션",  scale: s => s.사무직-s.소장+s.기전주임+s.기전주야},
+    {no:18, name:"파티션",              spec:"H1100*W800*45T",      price:120000, note:"소형파티션",  scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
+    {no:19, name:"파티션",              spec:"H1100*W400*45T",      price:95000,  note:"미니파티션",  scale: s => s.사무직-s.소장+s.기전주임+s.기전주야},
+    {no:20, name:"파티션부속",          spec:"H1100/삼각바/사각바",  price:85000,  note:"연결부속",    scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
+    {no:21, name:"파티션부속",          spec:"마감바",               price:75000,  note:"마감",        scale: s => Math.ceil((s.사무직-s.소장+s.기전주임+s.기전주야)*1.5)},
     {no:22, name:"설치 배송비",         spec:"-",                   price:0,      note:"별도산정",    scale: s => 1},
   ],
 
@@ -678,7 +678,4 @@ function calculate() {
     <p class="note">※ 수량·공급단가 수정 가능 | 판매가는 마진율 적용 후 10원 올림 자동계산 | 인쇄 시 공급단가 숨김</p>
   `;
   activeTab = '가구';
-  // 전체 금액 초기 계산
-  Object.keys(DATA).forEach(c => recalcSub(c));
-}
-</script>
+  // 전체 금액 초기 
