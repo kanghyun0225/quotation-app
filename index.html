@@ -344,6 +344,11 @@ const DATA = {
     {no:86, name:"구급함", brand:"일진약품", code:"W832-0423", spec:"스마트1호", price:31682, scale:s=>2},
     {no:87, name:"종이컵 디스펜서", brand:"삼정크린", code:"W917-1833", spec:"자석 부착형 종이컵 디스펜서", price:7442, scale:s=>1},
     {no:88, name:"종이컵 수거함", brand:"삼정크린", code:"W917-1842", spec:"종이컵 수거함", price:7808, scale:s=>1},
+    {no:89, name:"종이컵",           spec:"1000개입",                   price:8600,  src:"hanyang", scale:s=>sd(4,s,2)},
+    {no:91, name:"각티슈",           spec:"180매*6개(1박스)",            price:8475,  src:"hanyang", scale:s=>sd(4,s,2)},
+    {no:92, name:"커피믹스/모카골드", spec:"180T(2.16kg)",               price:26350, src:"hanyang", scale:s=>sd(2,s,1)},
+    {no:93, name:"현미녹차",         spec:"100티(150g)",                 price:5950,  src:"hanyang", scale:s=>sd(2,s,1)},
+    {no:94, name:"둥굴레차",         spec:"100티(120g)",                 price:7250,  src:"hanyang", scale:s=>sd(2,s,1)},
     {no:95, name:"휴지통", brand:"창신", code:"C171-4775", spec:"10L(그레이)", price:6044, scale:s=>Math.max(4, s.사무직)},
     {no:96, name:"멀티탭 5구 3M", brand:"현대일렉트릭", code:"W143-4213", spec:"5구 16A x 3M(HDGM16-53)", price:9438, scale:s=>Math.max(4, s.사무직+s.기전주임+2)},
     {no:97, name:"멀티탭 5구 1.5M", brand:"현대일렉트릭", code:"W143-4204", spec:"5구 16A x 1.5M(HDGM16-52)", price:7128, scale:s=>Math.max(4, s.사무직+s.기전주임+2)},
@@ -480,13 +485,13 @@ const DATA = {
   ],
 
   미화: [
-    {no:1,  name:"스파크 가루세제",        spec:"1kg",                        price:3000,   scale:s=>Math.max(sd(5,s,3), s.미화원+s.외곽미화)},
+    {no:1,  name:"스파크 가루세제",        spec:"1kg",                        price:2370,  src:"hanyang",   scale:s=>Math.max(sd(5,s,3), s.미화원+s.외곽미화)},
     {no:2,  name:"고무장갑",               brand:"크린랩", code:"W917-0807", spec:"선밴(분홍)",                 price:2000,   scale:s=>Math.max(sd(10,s,5), (s.미화원+s.외곽미화)*2)},
     {no:3,  name:"도로비(개량비)",         spec:"삼각개량비",                 price:6300,   scale:s=>Math.max(sd(5,s,3), s.미화원+s.외곽미화)},
-    {no:4,  name:"락스",                   spec:"유연 2L*6",                  price:8900,   scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/4))},
+    {no:4,  name:"락스",                   spec:"유연 2L*6",                  price:7100,  src:"hanyang",   scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/4))},
     {no:5,  name:"교체형 마포걸레",        brand:"삼정크린", code:"W182-8865", spec:"경편",                       price:3300,   scale:s=>Math.max(sd(20,s,10), (s.미화원+s.외곽미화)*4)},
     {no:6,  name:"마포대",                 brand:"강동산업", code:"W829-3305", spec:"1500 알루미늄",              price:4600,   scale:s=>Math.max(sd(15,s,8), (s.미화원+s.외곽미화)*3)},
-    {no:7,  name:"주방세제(대용량)",       spec:"하이퐁12kg",                 price:16500,  scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/5))},
+    {no:7,  name:"주방세제(대용량)",       spec:"하이퐁12kg",                 price:13800, src:"hanyang",  scale:s=>Math.max(sd(2,s,1), Math.ceil((s.미화원+s.외곽미화)/5))},
     {no:8,  name:"마포탈수기",             brand:"보흥클레온", code:"C571-3145", spec:"핸드짤순이(대)",             price:67000,  scale:s=>Math.max(5, s.미화원+s.외곽미화)},
     {no:9,  name:"유리세정제",             brand:"DM리빙", code:"W810-7026", spec:"600ml",                      price:1300,   scale:s=>Math.max(sd(12,s,6), (s.미화원+s.외곽미화)*2)},
     {no:10, name:"집게",                   spec:"600mm",                      price:2500,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
@@ -497,9 +502,9 @@ const DATA = {
     {no:15, name:"대나무비",               brand:"강동산업", code:"W829-8498", spec:"60*190",                     price:3500,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
     {no:16, name:"점보롤",                 brand:"유한킴벌리", code:"W886-1018", spec:"4묶음 1박스",                price:45000,  scale:s=>Math.max(sd(4,s,2), Math.ceil((s.미화원+s.외곽미화)/2))},
     {no:17, name:"알뜨랑비누",             spec:"140g*3",                     price:5900,   scale:s=>Math.max(sd(15,s,8), (s.미화원+s.외곽미화)*2)},
-    {no:18, name:"무궁화 빨래비누",        spec:"230g",                       price:1100,   scale:s=>Math.max(sd(16,s,8), (s.미화원+s.외곽미화)*3)},
+    {no:18, name:"무궁화 빨래비누",        spec:"230g",                       price:888,   src:"hanyang",   scale:s=>Math.max(sd(16,s,8), (s.미화원+s.외곽미화)*3)},
     {no:19, name:"다목적수세미(10P)",      spec:"10매",                       price:9600,   scale:s=>5},
-    {no:20, name:"철수세미",               spec:"40g",                        price:500,    scale:s=>20},
+    {no:20, name:"철수세미",               spec:"50개입",                     price:17300, src:"hanyang", scale:s=>1},
     {no:21, name:"수수장비",               brand:"강동산업", code:"W829-3138", spec:"40*85",                      price:5000,   scale:s=>Math.max(5, s.미화원+s.외곽미화)},
     {no:22, name:"외곽쓰레받기/PVC",       spec:"29*67cm",                    price:7800,   scale:s=>Math.max(6, s.미화원+s.외곽미화)},
     {no:23, name:"속장갑",                 brand:"쌍마", code:"W861-1857", spec:"청줄 10조",                  price:2400,   scale:s=>Math.max(10, s.미화원+s.외곽미화+s.경비)},
@@ -613,6 +618,8 @@ function makeTable(cat, items, s, margin) {
     const code  = f.code  ? `<span style="font-size:9px;color:#bbb">${f.code}</span>` : '';
     const srcBadge = f.src === 'naver'
       ? `<span style="font-size:9px;background:#fff3e0;color:#e65100;border:1px solid #ffb74d;border-radius:3px;padding:0 3px;margin-left:3px">네이버</span>`
+      : f.src === 'hanyang'
+      ? `<span style="font-size:9px;background:#e8f5e9;color:#2e7d32;border:1px solid #81c784;border-radius:3px;padding:0 3px;margin-left:3px">한양유통</span>`
       : (f.code ? `<span style="font-size:9px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:3px;padding:0 3px;margin-left:3px">크레텍</span>` : '');
     const spec  = typeof f.spec === 'function' ? f.spec(s) : f.spec;
     rows += `<tr>
