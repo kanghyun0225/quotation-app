@@ -102,8 +102,26 @@ tr:hover td{background:#f5f8fc}
   .tab-pane{display:block!important}
   .grand-bar{background:#1F4E79;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @page{margin:15mm 10mm}
+  /* ── 표지 ── */
+  .cover-page{display:block!important;page-break-after:always;text-align:center;padding:80mm 20mm 40mm}
+  .cover-title{font-size:32px;font-weight:900;letter-spacing:8px;color:#1F4E79;margin-bottom:20mm}
+  .cover-apt{font-size:22px;font-weight:700;margin-bottom:16mm;color:#222}
+  .cover-meta{font-size:13px;color:#555;line-height:2.2;border-top:2px solid #1F4E79;border-bottom:1px solid #ccc;display:inline-block;padding:8px 30px}
+  .cover-meta td:first-child{font-weight:700;padding-right:16px;color:#1F4E79}
+  /* ── 요약표 ── */
+  .summary-print{display:block!important;page-break-after:always;padding:10mm 0}
+  .summary-print h2{font-size:16px;font-weight:700;color:#1F4E79;margin-bottom:8px;border-bottom:2px solid #1F4E79;padding-bottom:4px}
+  .summary-print table{width:100%;border-collapse:collapse;font-size:12px}
+  .summary-print th{background:#1F4E79;color:#fff;padding:7px 10px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .summary-print td{padding:6px 10px;border-bottom:1px solid #ddd}
+  .summary-print td:first-child{font-weight:600}
+  .summary-print td:not(:first-child){text-align:right}
+  .summary-print .grand-row td{background:#e8f1f9;font-weight:700;border-top:2px solid #1F4E79;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
+
+/* 화면에서 표지·요약표 숨김 */
+.cover-page, .summary-print{display:none}
 /* ── 반응형 ── */
 @media(max-width:700px){
   .wrap{flex-direction:column;padding:8px}
@@ -516,6 +534,35 @@ function recalcSellPrices(cat) {
   recalcSub(cat);
 }
 
+
+// ── 인쇄용 요약 업데이트 ──
+function updateSummary() {
+  const catMap = {가구:'사무용가구', 집기:'사무집기', 용품:'사무용품', 공기구:'공기구', 미화:'미화용품'};
+  const el = id => document.getElementById(id);
+  let grandSub = 0, grandVat = 0;
+  Object.entries(catMap).forEach(([key]) => {
+    let sub = 0;
+    if (DATA[key]) {
+      DATA[key].forEach((f, i) => {
+        const qty = parseInt(el(`qty_${key}_${i}`)?.value) || 0;
+        const selEl = el(`sel_${key}_${i}`);
+        const sp = selEl ? parseInt(selEl.value.replace(/[^0-9]/g,'')) || 0 : 0;
+        sub += qty * sp;
+      });
+    }
+    const vat = Math.round(sub * 0.1);
+    grandSub += sub;
+    grandVat += vat;
+    if (el(`psum-sub-${key}`)) el(`psum-sub-${key}`).textContent = sub > 0 ? sub.toLocaleString('ko-KR')+'원' : '-';
+    if (el(`psum-vat-${key}`)) el(`psum-vat-${key}`).textContent = vat > 0 ? vat.toLocaleString('ko-KR')+'원' : '-';
+    if (el(`psum-tot-${key}`)) el(`psum-tot-${key}`).textContent = (sub+vat) > 0 ? (sub+vat).toLocaleString('ko-KR')+'원' : '-';
+  });
+  const grandTot = grandSub + grandVat;
+  if (el('psum-grand-sub')) el('psum-grand-sub').textContent = grandSub > 0 ? grandSub.toLocaleString('ko-KR')+'원' : '-';
+  if (el('psum-grand-vat')) el('psum-grand-vat').textContent = grandVat > 0 ? grandVat.toLocaleString('ko-KR')+'원' : '-';
+  if (el('psum-grand-tot')) el('psum-grand-tot').textContent = grandTot > 0 ? grandTot.toLocaleString('ko-KR')+'원' : '-';
+}
+
 function recalcSub(cat) {
   let sub = 0;
   DATA[cat].forEach((f, i) => {
@@ -542,6 +589,7 @@ function recalcSub(cat) {
   });
   const grandEl = document.getElementById('grand_total');
   if (grandEl) grandEl.textContent = `전체 합계 (VAT포함): ${Math.round(grand * 1.1).toLocaleString('ko-KR')}원`;
+  updateSummary();
 }
 
 // ── 테이블 HTML 생성 ──
@@ -659,6 +707,48 @@ function calculate() {
   tabsHtml += '</div>';
 
   document.getElementById('quoteArea').innerHTML = `
+    <div class="cover-page">
+      <div style="height:30mm"></div>
+      <div class="cover-title">납 품 견 적 서</div>
+      <div class="cover-apt">${aptName}</div>
+      <div style="margin-top:10mm">
+        <table class="cover-meta">
+          <tr><td>견적일</td><td>${today}</td></tr>
+          <tr><td>공급업체</td><td>한스코퍼레이션</td></tr>
+          <tr><td>세대수</td><td>${세대수.toLocaleString()}세대</td></tr>
+          <tr><td>관리인원</td><td>총 ${s.총원}명</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="summary-print">
+      <h2>견적 요약</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:25%">구분</th>
+            <th style="width:25%">공급가(소계)</th>
+            <th style="width:20%">부가세(10%)</th>
+            <th style="width:30%">합계</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>사무용가구</td><td id="psum-sub-가구">-</td><td id="psum-vat-가구">-</td><td id="psum-tot-가구">-</td></tr>
+          <tr><td>사무집기</td><td id="psum-sub-집기">-</td><td id="psum-vat-집기">-</td><td id="psum-tot-집기">-</td></tr>
+          <tr><td>사무용품</td><td id="psum-sub-용품">-</td><td id="psum-vat-용품">-</td><td id="psum-tot-용품">-</td></tr>
+          <tr><td>공기구</td><td id="psum-sub-공기구">-</td><td id="psum-vat-공기구">-</td><td id="psum-tot-공기구">-</td></tr>
+          <tr><td>미화용품</td><td id="psum-sub-미화">-</td><td id="psum-vat-미화">-</td><td id="psum-tot-미화">-</td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="grand-row">
+            <td>합계</td>
+            <td id="psum-grand-sub">-</td>
+            <td id="psum-grand-vat">-</td>
+            <td id="psum-grand-tot">-</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
     <div class="toolbar">
       <div>
         <div class="apt-title">${aptName}</div>
@@ -681,6 +771,9 @@ function calculate() {
     ${panesHtml}
   `;
   switchTab(activeTab);
+  // 각 탭 소계 계산 후 요약 업데이트
+  Object.keys(DATA).forEach(c => recalcSub(c));
+  updateSummary();
 }
 </script>
 </body>
