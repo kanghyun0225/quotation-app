@@ -617,7 +617,7 @@ function makeTable(cat, items, s, margin) {
     const spec  = typeof f.spec === 'function' ? f.spec(s) : f.spec;
     rows += `<tr>
       <td class="tc" style="color:#999;font-size:11px">${f.no}</td>
-      <td class="tl" style="min-width:90px">${brand}${f.name}</td>
+      <td class="tl" style="min-width:90px">${brand}${f.name}${srcBadge}</td>
       <td class="tc" style="font-size:10px;color:#777;min-width:90px">${spec}${code?'<br>'+code:''}</td>
       <td class="tc">
         <input type="number" class="ni" id="qty_${cat}_${i}" value="${qty}" min="0"
