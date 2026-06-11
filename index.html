@@ -672,4 +672,17 @@ function calculate() {
     </div>
     <div class="summary-bar">
       <span class="sb">🏠 ${세대수.toLocaleString()}세대</span>
-      <span class="sb">👥 총 ${s.총원
+      <span class="sb">👥 총 ${s.총원}명</span>
+      <span class="sb">🏢 사무직 ${s.사무직}명</span>
+      <span class="sb">⚙️ 기전 ${s.기전}명</span>
+      <span class="sb">🔒 경비 ${s.경비}명</span>
+      <span class="sb">🧹 미화 ${s.미화}명</span>
+    </div>
+    ${tabsHtml}
+    ${panesHtml}
+  `;
+  switchTab(activeTab);
+}
+</script>
+</body>
+</html>
