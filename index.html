@@ -360,6 +360,15 @@ const DATA = {
     {no:96, name:"153볼펜 검정", brand:"모나미", code:"C184-0414", spec:"검정(0.7)(1타=12입)", price:2721, scale:s=>5},
     {no:97, name:"양면폼테이프 12mm", brand:"3M", code:"W825-2256", spec:"#4421W 12*2M(1BOX/36EA)", price:20212, scale:s=>sd(1,s,1)},
     {no:98, name:"양면폼테이프 24mm", brand:"3M", code:"W825-2283", spec:"#4421W 24*2M(1BOX/20EA)", price:19592, scale:s=>sd(1,s,1)},
+    {no:99,  name:"프린텍 애니라벨 (물류관리라벨)", spec:"V3110-100매(1칸)",           price:14000, src:"naver", scale:s=>1},
+    {no:100, name:"프린텍 애니라벨 (정부문서화일 라벨)", spec:"V4330-20매",            price:3670,  src:"naver", scale:s=>1},
+    {no:101, name:"프린텍 애니라벨 퀵앤이지라벨",    spec:"Q3240-100매(16칸)",         price:15500, src:"naver", scale:s=>1},
+    {no:102, name:"알파 청스프링화일",               spec:"A4 1매(AF130)",              price:880,   src:"naver", scale:s=>Math.max(4,s.사무직)},
+    {no:103, name:"칼라 PP 정부화일",               spec:"A4 10매(노랑)",               price:3600,  src:"naver", scale:s=>1},
+    {no:104, name:"알파 합지D링바인더 3공",          spec:"KD-304 A4/7cm/500매(흑색)", price:4280,  src:"naver", scale:s=>Math.max(4,s.사무직)},
+    {no:105, name:"평화 고정펀치 503",              spec:"2공/7cm",                    price:7590,  src:"naver", scale:s=>1},
+    {no:106, name:"희망 클리어화일 내지",            spec:"1.25T A4 20매",              price:1850,  src:"naver", scale:s=>1},
+    {no:107, name:"M플래그 인덱스",                 spec:"9색 44x12mm 900매",          price:14980, src:"naver", scale:s=>1},
   ],
 
   공기구: [
@@ -461,13 +470,13 @@ const DATA = {
     {no:96,  name:"도금비트날",          spec:"베셀 200mm",                 price:7200,   scale:s=>3},
     {no:97,  name:"PP로프",              spec:"6mm*200M",                   price:17600,  scale:s=>3},
     {no:98,  name:"앵글선반",            spec:"5단",                        price:110000, scale:s=>2},
-    {no:99,  name:"사다리(LS)",          spec:"LS형 5단",                   price:145000, scale:s=>1},
-    {no:100, name:"사다리보강대",        spec:"LS사다리용(1SET=4EA)",       price:32000,  scale:s=>1},
-    {no:101, name:"포켓몽키",            spec:"SM-C10S (155mm)",            price:9700,   scale:s=>2},
-    {no:102, name:"P대차 핸드카트",      spec:"대",                         price:71000,  scale:s=>1},
-    {no:103, name:"석고보드앵커",        spec:"100ea",                      price:13500,  scale:s=>1},
-    {no:104, name:"병목나사 피스",       spec:"500EA",                      price:6500,   scale:s=>1},
-    {no:105, name:"열쇠고리",            spec:"100개",                      price:10000,  scale:s=>1},
+    {no:99,  name:"사다리(LS)",          spec:"LS형 5단",                   price:145000, src:"naver", scale:s=>1},
+    {no:100, name:"사다리보강대",        spec:"LS사다리용(1SET=4EA)",       price:32000,  src:"naver", scale:s=>1},
+    {no:101, name:"포켓몽키",            spec:"SM-C10S (155mm)",            price:9700,   src:"naver", scale:s=>2},
+    {no:102, name:"P대차 핸드카트",      spec:"대",                         price:71000,  src:"naver", scale:s=>1},
+    {no:103, name:"석고보드앵커",        spec:"100ea",                      price:13500,  src:"naver", scale:s=>1},
+    {no:104, name:"병목나사 피스",       spec:"500EA",                      price:6500,   src:"naver", scale:s=>1},
+    {no:105, name:"열쇠고리",            spec:"100개",                      price:10000,  src:"naver", scale:s=>1},
   ],
 
   미화: [
@@ -602,6 +611,9 @@ function makeTable(cat, items, s, margin) {
     const amt = qty * sp;
     const brand = f.brand ? `<span style="font-size:10px;color:#888">${f.brand}</span><br>` : '';
     const code  = f.code  ? `<span style="font-size:9px;color:#bbb">${f.code}</span>` : '';
+    const srcBadge = f.src === 'naver'
+      ? `<span style="font-size:9px;background:#fff3e0;color:#e65100;border:1px solid #ffb74d;border-radius:3px;padding:0 3px;margin-left:3px">네이버</span>`
+      : (f.code ? `<span style="font-size:9px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:3px;padding:0 3px;margin-left:3px">크레텍</span>` : '');
     const spec  = typeof f.spec === 'function' ? f.spec(s) : f.spec;
     rows += `<tr>
       <td class="tc" style="color:#999;font-size:11px">${f.no}</td>
